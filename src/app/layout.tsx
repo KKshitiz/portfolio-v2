@@ -1,59 +1,55 @@
-import { Facebook, Github, Twitter } from "lucide-react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Link from "next/link";
-import "./globals.css";
-import { NavLinks } from "./ui/nav-links";
-
-const socialLinks = [
-  { icon: Facebook, link: "https://facebook.com" },
-  { icon: Twitter, link: "https://twitter.com" },
-  { icon: Github, link: "https://github.com" },
-];
+import { Newsreader } from "next/font/google";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
 
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-newsreader",
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const SITE_DESCRIPTION =
+  "Personal site of Kshitiz Kamal. Developer writing about software, design, and the craft of building things.";
+
 export const metadata: Metadata = {
-  title: "Kshitiz Kamal - Portfolio",
-  description: "Personal portfolio and blog of Kshitiz Kamal. Full-stack developer, writer, and technology enthusiast.",
+  metadataBase: new URL("https://kshitizkamal.in"),
+  title: {
+    default: "Kshitiz Kamal",
+    template: "%s — Kshitiz Kamal",
+  },
+  description: SITE_DESCRIPTION,
   keywords: ["portfolio", "developer", "full-stack", "blog", "technology"],
   authors: [{ name: "Kshitiz Kamal" }],
   creator: "Kshitiz Kamal",
   openGraph: {
-    title: "Kshitiz Kamal - Portfolio",
-    description: "Personal portfolio and blog of Kshitiz Kamal. Full-stack developer, writer, and technology enthusiast.",
-    url: "https://kshitizkamal.in", // Replace with your actual domain
-    siteName: "Kshitiz Kamal Portfolio",
-    images: [
-      {
-        url: "/og-image.jpg", // You'll need to add this image to your public folder
-        width: 1200,
-        height: 630,
-        alt: "Kshitiz Kamal - Portfolio",
-      },
-    ],
+    title: "Kshitiz Kamal",
+    description: SITE_DESCRIPTION,
+    url: "https://kshitizkamal.in",
+    siteName: "Kshitiz Kamal",
     locale: "en_US",
     type: "website",
+    images: ["/og-image.jpg"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kshitiz Kamal - Portfolio",
-    description: "Personal portfolio and blog of Kshitiz Kamal. Full-stack developer, writer, and technology enthusiast.",
-    images: ["/og-image.jpg"], // Same image as Open Graph
+    title: "Kshitiz Kamal",
+    description: SITE_DESCRIPTION,
+    images: ["/og-image.jpg"],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -64,36 +60,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable}`}
       >
-        <main className="flex flex-col max-w-3xl mx-auto min-h-screen justify-between">
-          <header className="flex items-center justify-between py-10">
-            <Link href="/">
-              <h3 className="text-3xl font-bold">Kshitiz Kamal</h3>
-            </Link>
-            <NavLinks />
-          </header>
-          {children}
-
-          <footer className="flex flex-col justify-center items-center gap-y-4 my-10">
-            <nav
-              aria-label="Social navigation"
-              className="flex space-x-2 items-center justify-center"
-            >
-              {socialLinks.map((social) => (
-                <a
-                  href={social.link}
-                  key={social.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <social.icon />
-                </a>
-              ))}
-            </nav>
-            <div>Kshitiz Kamal • ©{new Date().getFullYear()}</div>
-          </footer>
-        </main>
+        {children}
       </body>
     </html>
   );

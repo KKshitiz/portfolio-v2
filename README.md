@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# kshitizkamal.in
 
-## Getting Started
+Personal site and blog. Next.js App Router, markdown content in the repo, and a
+browser-based editor that commits posts back to GitHub.
 
-First, run the development server:
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Site: http://localhost:3000
+- Editor: http://localhost:3000/keystatic
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Writing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Content lives in `content/` as plain markdown with YAML frontmatter:
 
-## Learn More
+| Folder              | What it is                         |
+| ------------------- | ---------------------------------- |
+| `content/blog/`     | Long-form posts (`/blogs`)         |
+| `content/micro/`    | Short notes (`/micro`)             |
+| `content/projects/` | Project entries (`/projects`)      |
 
-To learn more about Next.js, take a look at the following resources:
+Edit them in a text editor, or through [Keystatic](https://keystatic.com) at
+`/keystatic`. Locally the editor writes straight to disk; in production it
+commits to this repo through a GitHub App.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`src/lib/content.ts` reads and parses these files — it is the single place that
+knows about the content directory layout.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Projects and GitHub
 
-## Deploy on Vercel
+Each entry in `content/projects/` may set a `repo` field (`owner/name`). At
+build time `src/lib/github.ts` fetches live stars, language, and last-pushed
+date, revalidating hourly.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+If the GitHub API is unavailable, rate-limited, or the repo is private, the
+fetch returns `null` and the page falls back to the curated content — it never
+fails the build.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment
+
+Copy `.env.example` to `.env`. Everything is optional for local development:
+with no `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` set, the editor runs in local
+mode and needs no auth.
+
+For production, visit `/keystatic` on the deployed site once and follow the
+GitHub App setup. It generates four `KEYSTATIC_*` values — copy all of them into
+your Vercel environment variables.
+
+`GITHUB_TOKEN` is optional and only raises the projects-page API rate limit from
+60/hour to 5,000/hour.
+
+## Structure
+
+```
+src/app/(site)/      Public pages — own layout, imports globals.css
+src/app/keystatic/   Editor UI, deliberately outside (site) so the
+                     site stylesheet cannot bleed into it
+src/app/api/         Keystatic route handler
+src/components/      Shared UI
+src/lib/             Content parsing, GitHub API, formatting
+keystatic.config.ts  Content schema
+```
